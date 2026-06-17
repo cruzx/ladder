@@ -9,85 +9,83 @@ tcp-concurrent: true
 {{ conf | except("proxy-groups", "rules", "mixed-port", "allow-lan", "mode", "log-level", "ipv6", "unified-delay", "tcp-concurrent") | yaml }}
 
 proxy-groups:
-  - name: Proxy
-    type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    proxies:
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: Codex
-    type: url-test
-    url: https://chatgpt.com
-    interval: 300
-    proxies:
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: AI
-    type: url-test
-    url: https://api.openai.com
-    interval: 300
-    proxies:
-      - Codex
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: Video
-    type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    proxies:
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: Streaming
-    type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    proxies:
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: Social
-    type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    proxies:
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: Design
-    type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    proxies:
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
-  - name: Music
-    type: url-test
-    url: http://www.gstatic.com/generate_204
-    interval: 300
-    proxies:
-      - Proxy
-{{ proxy_remarks | yaml | indent(6, true) }}
   - name: Automatic
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
+    tolerance: 50
     proxies:
 {{ proxy_remarks | yaml | indent(6, true) }}
+  - name: Proxy
+    type: select
+    proxies:
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: Codex
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: AI
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: Video
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: Streaming
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: Social
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: Design
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
+  - name: Music
+    type: select
+    proxies:
+      - Proxy
+      - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
+      - DIRECT
   - name: Final
     type: select
     proxies:
       - DIRECT
-      - Codex
+      - Proxy
       - Automatic
+{{ proxy_remarks | yaml | indent(6, true) }}
 
 rules:
   - DOMAIN-SUFFIX,chatgpt.com,Codex
   - DOMAIN-SUFFIX,openai.com,Codex
-  - DOMAIN-SUFFIX,api.openai.com,Codex
   - DOMAIN-SUFFIX,auth.openai.com,Codex
   - DOMAIN-SUFFIX,oaistatic.com,Codex
   - DOMAIN-SUFFIX,oaiusercontent.com,Codex
   - DOMAIN-SUFFIX,oaistatsig.com,Codex
-  - DOMAIN-SUFFIX,cdn.oaistatic.com,Codex
-  - DOMAIN-SUFFIX,files.oaiusercontent.com,Codex
   - DOMAIN-SUFFIX,sora.com,Codex
   - DOMAIN-SUFFIX,github.com,AI
   - DOMAIN-SUFFIX,githubusercontent.com,AI
@@ -108,7 +106,6 @@ rules:
   - DOMAIN-SUFFIX,nflximg.net,Streaming
   - DOMAIN-SUFFIX,nflxvideo.net,Streaming
   - DOMAIN-SUFFIX,figma.com,Design
-  - DOMAIN-SUFFIX,figma.beta.com,Design
   - DOMAIN-SUFFIX,figmausercontent.com,Design
   - DOMAIN-SUFFIX,instagram.com,Social
   - DOMAIN-SUFFIX,cdninstagram.com,Social
@@ -143,4 +140,4 @@ rules:
   - DOMAIN-SUFFIX,aliyun.com,DIRECT
   - DOMAIN-SUFFIX,cn,DIRECT
   - GEOIP,CN,DIRECT
-  - MATCH,DIRECT
+  - MATCH,Final

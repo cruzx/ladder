@@ -1,8 +1,8 @@
 # Ladder
 
-A shareable Codex-focused proxy deployment skill for **Evoxt** and **Google Cloud**.
+A shareable, Codex-focused proxy deployment skill for **Evoxt** and **Google Cloud**.
 
-This repository helps you deploy a self-hosted proxy node optimized for:
+This repository is designed for people who want to deploy a self-hosted proxy node that works well for:
 
 - Codex
 - ChatGPT
@@ -15,81 +15,86 @@ This repository helps you deploy a self-hosted proxy node optimized for:
 - Spotify
 - Pinterest
 
-It is built to keep **domestic traffic direct** and proxy only the international apps and domains that are more likely to be blocked.
+The default routing strategy is simple:
 
-## What is inside
+- China domestic traffic stays `DIRECT`
+- only likely blocked international services go through the proxy
+- Codex and OpenAI traffic gets special handling to reduce `Reconnecting`
 
-- A reusable Codex skill: [`SKILL.md`](./SKILL.md)
-- A server install script for Ubuntu VPS: [`scripts/install-server.sh`](./scripts/install-server.sh)
-- Marzban, Caddy, Clash template, and Xray Reality templates under [`assets/`](./assets)
-- Notes for fixing Codex `Reconnecting` under [`references/codex-reconnecting.md`](./references/codex-reconnecting.md)
-- A provider comparison for Evoxt vs Google Cloud under [`references/provider-comparison.md`](./references/provider-comparison.md)
+## Highlights
 
-## Who this is for
+- Provider choice guidance for **Evoxt** and **Google Cloud**
+- Ubuntu VPS deployment templates
+- `Marzban + Caddy + Shadowsocks + VLESS Reality` stack
+- Split-routing templates for Clash / Mihomo
+- Codex-specific routing notes for WebSocket stability
+- Sanitized, shareable templates with placeholders instead of personal secrets
 
-Use this repo if you want to:
+## Repository structure
 
-- deploy your own VPS proxy node
-- optimize the connection for Codex and ChatGPT
-- route only blocked international services through the proxy
-- keep China domestic websites direct
-- share a clean template pack with friends or teammates
+- [`README.md`](./README.md): project overview and usage guide
+- [`SKILL.md`](./SKILL.md): reusable Codex skill entry
+- [`assets/`](./assets): client and server templates
+- [`references/`](./references): troubleshooting, pricing, verification, and workflow notes
+- [`scripts/`](./scripts): deployment and patch helper scripts
+- [`agents/openai.yaml`](./agents/openai.yaml): skill metadata for agent use
 
-## Provider choice
+## Choose a provider
 
 ### Evoxt
 
-Best for:
+Choose Evoxt if you want:
 
 - lower and more predictable monthly cost
-- simpler personal long-term use
-- bundled traffic allowances
+- simpler long-running personal use
+- bundled transfer with less billing surprise
 
-Typical public price examples in the included notes:
+Typical examples from the included pricing note:
 
 - `VM-1`: about `$5.99/month`
 - `VM-2`: about `$11.99/month`
 
 ### Google Cloud
 
-Best for:
+Choose Google Cloud if you want:
 
-- users who already use GCP
-- temporary testing
-- short-lived projects using credits
+- GCP project controls and APIs
+- short-lived test environments
+- trial-credit experiments
 
-Important note:
+Important warning:
 
-- outbound traffic can become much more expensive than the VM itself
+- outbound traffic can cost much more than the VM itself
 
-Read the full comparison here:
+Full comparison:
 
 - [references/provider-comparison.md](./references/provider-comparison.md)
 
+## Recommended defaults
+
+- Region: `Tokyo` first, `Osaka` second
+- OS: recent Ubuntu release
+- Personal use: `1 vCPU / 2 GB RAM` minimum
+- Shared use: `2 vCPU / 4 GB RAM` or higher
+- Panel: `Marzban`
+- Front end: `Caddy`
+- Compatibility transport: `Shadowsocks` on `443`
+- Codex-first transport: `VLESS Reality` on `2053`
+
 ## Quick start
 
-### 1. Choose your provider
+### 1. Create a VPS
 
-Pick one:
+Start with either:
 
-- Evoxt
-- Google Cloud
+- Evoxt in Japan
+- Google Cloud in `asia-northeast1` or `asia-northeast2`
 
 If you are unsure, start with **Evoxt**.
 
-### 2. Create a VPS
+### 2. Replace the placeholders
 
-Recommended:
-
-- Region: `Tokyo` first, `Osaka` second
-- OS: recent Ubuntu
-- Size:
-  - personal use: start from 1 vCPU / 2 GB RAM
-  - shared use: 2 vCPU / 4 GB RAM or higher
-
-### 3. Prepare the placeholders
-
-Before deployment, replace these placeholders in the templates:
+Before deployment, replace these values in the templates:
 
 - `__SERVER_IP__`
 - `__SERVER_DOMAIN__`
@@ -102,72 +107,38 @@ Before deployment, replace these placeholders in the templates:
 - `__REALITY_SERVER_NAME__`
 - `__REALITY_SHORT_ID__`
 
-### 4. Deploy the server stack
-
-This repo uses:
-
-- Caddy
-- Marzban
-- Shadowsocks
-- VLESS Reality
-
-Main files:
+Primary files:
 
 - [`assets/server/marzban/.env.example`](./assets/server/marzban/.env.example)
 - [`assets/server/marzban/docker-compose.yml`](./assets/server/marzban/docker-compose.yml)
 - [`assets/server/caddy/Caddyfile.example`](./assets/server/caddy/Caddyfile.example)
 - [`assets/server/xray/core-config-reality.template.json`](./assets/server/xray/core-config-reality.template.json)
 - [`assets/server/templates/clash-classic-default.yml`](./assets/server/templates/clash-classic-default.yml)
+- [`assets/client/codex-optimized-clash.template.yaml`](./assets/client/codex-optimized-clash.template.yaml)
 
-After filling values, run:
+### 3. Deploy the server stack
+
+Run this on the VPS as `root` after preparing the final config files:
 
 ```bash
 bash scripts/install-server.sh
 ```
 
-Run it on the VPS as `root`.
+The stack installs and prepares:
 
-### 5. Import the client configuration
+- Docker
+- Caddy
+- UFW
+- vnStat
+- Marzban
 
-If you want a manual Clash/Mihomo client template, use:
+### 4. Configure your client
+
+For manual Clash or Mihomo import, use:
 
 - [`assets/client/codex-optimized-clash.template.yaml`](./assets/client/codex-optimized-clash.template.yaml)
 
-This template is already tuned to:
-
-- send China traffic direct
-- proxy OpenAI and Codex-related domains
-- optimize common international apps into separate groups
-
-### 6. Fix Codex Reconnecting if needed
-
-If Codex reconnects repeatedly, read:
-
-- [references/codex-reconnecting.md](./references/codex-reconnecting.md)
-
-This repo already bakes in the main routing idea:
-
-- proxy the broader OpenAI surface
-- allow secure WebSocket traffic over TCP `443`
-- keep `chatgpt.com`, `ws.chatgpt.com`, `oaistatic.com`, `oaiusercontent.com`, and `oaistatsig.com` on the proxied path
-
-### 7. Fix missing Reality `short-id` in Marzban subscriptions
-
-Some Marzban builds may omit `sid` in generated Reality subscriptions.
-
-Use:
-
-- [`scripts/patch_marzban_share_sid.py`](./scripts/patch_marzban_share_sid.py)
-
-## Routing behavior
-
-The included rules are designed so that:
-
-- China domestic domains go `DIRECT`
-- unknown traffic defaults to `DIRECT`
-- only selected international apps are proxied
-
-Pre-optimized buckets include:
+The included rules already optimize these groups:
 
 - `Codex`: ChatGPT, OpenAI, Sora
 - `AI`: GitHub, Google, Notion
@@ -177,29 +148,60 @@ Pre-optimized buckets include:
 - `Social`: Instagram, X, Facebook, Telegram, Discord, Reddit, Pinterest
 - `Music`: Spotify
 
-## Share safely
+## Codex optimization
 
-Before sharing with someone else:
+This repo is intentionally tuned for Codex, especially when ordinary HTTPS works but the app keeps reconnecting.
 
-- remove real IPs
-- remove real domains
-- remove UUIDs
-- remove passwords
-- remove private keys
-- remove subscription links and tokens
-- remove screenshots that expose secrets
+What it does:
 
-Use the templates under [`assets/`](./assets) instead of exporting a live server dump.
+- keeps the broader OpenAI surface on the proxied path
+- covers domains such as `chatgpt.com`, `openai.com`, `oaistatic.com`, `oaiusercontent.com`, and `oaistatsig.com`
+- assumes secure WebSocket traffic over TCP `443` must work end to end
+- prefers `VLESS Reality` while keeping `Shadowsocks` as a fallback
 
-## Verification checklist
+Read the dedicated note here:
 
-See:
+- [references/codex-reconnecting.md](./references/codex-reconnecting.md)
+
+## Known Marzban issue
+
+Some Marzban builds may omit the Reality `short-id` from generated subscriptions.
+
+If that happens, use:
+
+- [`scripts/patch_marzban_share_sid.py`](./scripts/patch_marzban_share_sid.py)
+
+## Verification
+
+Before calling the setup complete, check:
+
+- panel is reachable on `https://your-domain:8443`
+- ports `443`, `2053`, and `8443` are listening
+- subscription output contains both `ss` and `vless`
+- Reality entries include `public-key` and `short-id`
+- domestic sites go `DIRECT`
+- Codex and major blocked services follow the intended proxy groups
+
+Full checklist:
 
 - [references/verification-and-sharing.md](./references/verification-and-sharing.md)
 
-## Chinese guide | 中文说明
+## Share safely
 
-这是一个适合 **Evoxt** 和 **Google Cloud** 的自建代理技能仓库，重点是优化：
+Before sharing this setup with anyone else:
+
+- remove real IP addresses
+- remove real domains
+- remove usernames and passwords
+- remove UUIDs and private keys
+- remove subscription URLs and tokens
+- remove screenshots that expose secrets
+
+If you are publishing a reusable package, share the files under [`assets/`](./assets) instead of a live server export.
+
+## Chinese Guide | 中文说明
+
+这是一个适合 **Evoxt** 和 **Google Cloud** 的自建代理技能仓库，重点是让下面这些服务更稳定：
 
 - Codex
 - ChatGPT
@@ -212,85 +214,68 @@ See:
 - Spotify
 - Pinterest
 
-核心目标：
+默认策略是：
 
-- 只有国外常见被墙服务走代理
-- 国内网站默认直连
-- 尽量减少 Codex `Reconnecting`
-- 可以把这套方案脱敏后分享给别人
+- 国内网站直连
+- 只有常见被墙的国外服务走代理
+- 对 Codex / OpenAI 做额外优化，尽量减少 `Reconnecting`
+
+### 适合谁用
+
+如果你想做下面这些事，这个仓库就适合：
+
+- 自己搭一台代理 VPS
+- 优化 Codex 和 ChatGPT 的连接体验
+- 只代理国外受限服务，不影响国内网站
+- 把脱敏后的模板分享给朋友或同事
+
+### 怎么选
+
+- 想省钱、长期稳定用：优先 `Evoxt`
+- 已经在用 GCP、想临时测试或用赠金：选 `Google Cloud`
+- 不确定怎么选：先上 `Evoxt`
 
 ### 怎么用
 
-1. 先选服务器提供商
-
-- 想省钱、长期稳定使用：优先 `Evoxt`
-- 已经在用 GCP、想临时测试或用赠金：可以选 `Google Cloud`
-
-2. 开一台 Ubuntu VPS
-
-推荐：
-
-- 地区优先 `Tokyo`，其次 `Osaka`
-- 个人使用建议从 `1 vCPU / 2 GB RAM` 起步
-- 多人共用建议 `2 vCPU / 4 GB RAM` 或更高
-
-3. 把模板里的占位符替换掉
-
-要替换的内容包括：
-
-- 服务器 IP
-- 域名
-- 管理员用户名和密码
-- Shadowsocks 密码
-- VLESS UUID
-- Reality 公私钥和 short-id
-
-4. 部署服务端
-
-主要用到：
-
-- `Caddy`
-- `Marzban`
-- `Shadowsocks`
-- `VLESS Reality`
-
-入口脚本：
+1. 开一台 Ubuntu VPS
+2. 替换模板里的占位符
+3. 按仓库里的模板准备服务端配置
+4. 在 VPS 上运行：
 
 ```bash
 bash scripts/install-server.sh
 ```
 
-5. 导入客户端规则
-
-手动导入 Clash 或 Mihomo 时，使用：
+5. 客户端导入：
 
 - [`assets/client/codex-optimized-clash.template.yaml`](./assets/client/codex-optimized-clash.template.yaml)
 
-这份规则已经帮你做好：
+### 这套规则帮你做了什么
 
-- 国内网站直连
+- 国内网站默认直连
 - OpenAI / Codex 相关域名走代理
 - YouTube、Netflix、Figma、社交媒体、Spotify 分组优化
+- Codex 的 WebSocket 场景单独照顾
 
-6. 如果 Codex 老是 Reconnecting
+### 如果 Codex 老是 Reconnecting
 
 直接看：
 
 - [references/codex-reconnecting.md](./references/codex-reconnecting.md)
 
-7. 如果 Marzban 生成的 Reality 订阅缺少 `sid`
+### 如果 Marzban 的 Reality 订阅缺少 `sid`
 
 用这个补丁：
 
 - [`scripts/patch_marzban_share_sid.py`](./scripts/patch_marzban_share_sid.py)
 
-### 发给别人之前要注意
+### 分享给别人前要做什么
 
 - 去掉真实 IP
 - 去掉真实域名
-- 去掉密码、UUID、私钥
+- 去掉用户名、密码、UUID、私钥
 - 去掉订阅链接和 token
-- 尽量发模板，不要直接发线上配置导出
+- 尽量分享模板，不要直接导出线上配置
 
 ## Notes
 

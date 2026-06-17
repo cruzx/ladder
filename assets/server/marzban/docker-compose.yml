@@ -1,0 +1,10 @@
+services:
+  marzban:
+    image: gozargah/marzban:latest
+    container_name: marzban
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - .env
+    volumes:
+      - /var/lib/marzban:/var/lib/marzban

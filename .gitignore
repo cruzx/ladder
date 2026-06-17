@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Local environment
+.env
+.env.*
+
+# Generated secrets and personal overrides
+*.local
+*.secret

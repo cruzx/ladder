@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evoxt Codex Proxy"
+  short_description: "Deploy and tune a Codex-focused VPS proxy node"
+  default_prompt: "Use $evoxt-codex-proxy to deploy and optimize a shareable VPS proxy for Codex and common apps."

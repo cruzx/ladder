@@ -30,6 +30,31 @@ The default routing strategy is simple:
 - Codex-specific routing notes for WebSocket stability
 - Sanitized, shareable templates with placeholders instead of personal secrets
 
+## 1-Minute Quick Deploy
+
+If you just want the shortest path:
+
+1. Create an Ubuntu VPS in `Tokyo` or `Osaka`.
+2. Fill in the placeholders in these files:
+   - `assets/server/marzban/.env.example`
+   - `assets/server/caddy/Caddyfile.example`
+   - `assets/server/xray/core-config-reality.template.json`
+   - `assets/client/codex-optimized-clash.template.yaml`
+3. Rename the prepared server files to the live names your server will use:
+   - `.env`
+   - `Caddyfile`
+4. Upload this repo to the VPS.
+5. Run:
+
+```bash
+bash scripts/install-server.sh
+```
+
+6. Import `assets/client/codex-optimized-clash.template.yaml` into Clash or Mihomo.
+7. Make sure `Codex` and `OpenAI` traffic is not set to `DIRECT`.
+
+If you are unsure which provider to use, pick **Evoxt** first.
+
 ## Repository structure
 
 - [`README.md`](./README.md): project overview and usage guide
@@ -219,6 +244,31 @@ If you are publishing a reusable package, share the files under [`assets/`](./as
 - 国内网站直连
 - 只有常见被墙的国外服务走代理
 - 对 Codex / OpenAI 做额外优化，尽量减少 `Reconnecting`
+
+### 1 分钟快速部署
+
+如果你只想走最短路径：
+
+1. 开一台 `Tokyo` 或 `Osaka` 的 Ubuntu VPS
+2. 替换这几个模板里的占位符：
+   - `assets/server/marzban/.env.example`
+   - `assets/server/caddy/Caddyfile.example`
+   - `assets/server/xray/core-config-reality.template.json`
+   - `assets/client/codex-optimized-clash.template.yaml`
+3. 把服务端准备好的文件改成正式名字：
+   - `.env`
+   - `Caddyfile`
+4. 把仓库上传到 VPS
+5. 运行：
+
+```bash
+bash scripts/install-server.sh
+```
+
+6. 客户端导入 `assets/client/codex-optimized-clash.template.yaml`
+7. 确认 `Codex` 和 `OpenAI` 相关流量不是 `DIRECT`
+
+如果你不知道选哪个供应商，默认先选 **Evoxt**。
 
 ### 适合谁用
 

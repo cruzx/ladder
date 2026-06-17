@@ -1,0 +1,7 @@
+http://__SERVER_DOMAIN__ {
+  redir https://__SERVER_DOMAIN__:8443{uri} permanent
+}
+
+https://__SERVER_DOMAIN__:8443 {
+  reverse_proxy 127.0.0.1:8000
+}
